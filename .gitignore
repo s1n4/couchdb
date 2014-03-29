@@ -138,3 +138,6 @@ tmp
 utils/run
 src/fauxton/test/test.config.js
 src/fauxton/app/initialize.js
+src/protobuffs/ebin/protobuffs.app
+src/protobuffs/src/protobuffs_parser.erl
+src/protobuffs/src/protobuffs_scanner.erl

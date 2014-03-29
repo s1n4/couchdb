@@ -1,0 +1,10 @@
+{ application, protobuffs,
+  [ { description, "Google protobuffs implementation for Erlang." },
+    { vsn, git },
+    { registered, [] },
+    { applications, [kernel,stdlib] },
+    { env, [] },
+    { modules, [protobuffs, protobuffs_scanner, protobuffs_parser,
+                protobuffs_compile, protobuffs_file, pokemon_pb] }
+  ]
+}.
