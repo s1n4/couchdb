@@ -90,7 +90,7 @@ function(app, FauxtonAPI, Documents, Databases) {
       database = this.database;
 
       doc.copy(newId).then(function () {
-        doc.set({_id: newId}); 
+        doc.set({_id: newId});
         docView.forceRender();
         FauxtonAPI.navigate('/database/' + database.safeID() + '/' + app.utils.safeURLName(newId), {trigger: true});
         FauxtonAPI.addNotification({
@@ -143,12 +143,25 @@ function(app, FauxtonAPI, Documents, Databases) {
     layout: "with_tabs_sidebar",
     selectedHeader: "Databases",
     routes: {
-      "database/:database/_all_docs(:extra)": "allDocs", 
-      "database/:database/_design/:ddoc/_view/:view": {
+      "database/:database/_all_docs(:extra)": "allDocs",
+      "database/:database/_design/:ddoc/_views/:view": {
         route: "viewFn",
         roles: ['_admin']
       },
-      "database/:database/new_view": "newViewEditor"
+      "database/:database/_design/:ddoc/_lists/:fn": {
+        route: "tempFn",
+        roles: ['_admin']
+      },
+      "database/:database/_design/:ddoc/_filters/:fn": {
+        route: "tempFn",
+        roles: ['_admin']
+      },
+      "database/:database/_design/:ddoc/_show/:fn": {
+        route: "tempFn",
+        roles: ['_admin']
+      },
+      "database/:database/new_view": "newViewEditor",
+      "database/:database/new_view/:designDoc": "newViewEditor"
     },
 
     events: {
@@ -181,6 +194,16 @@ function(app, FauxtonAPI, Documents, Databases) {
       }));
     },
 
+    tempFn:  function(databaseName, ddoc, fn){
+      this.setView("#dashboard-upper-content", new Documents.Views.temp({}));
+      this.crumbs = function () {
+        return [
+          {"name": this.data.database.id, "link": Databases.databaseUrl(this.data.database)},
+        ];
+      };
+
+    },
+
     establish: function () {
       return this.data.designDocs.fetch();
     },
@@ -194,7 +217,7 @@ function(app, FauxtonAPI, Documents, Databases) {
     },
 
     /*
-    * docParams are the options collection uses to fetch from the server 
+    * docParams are the options collection uses to fetch from the server
     * urlParams are what are shown in the url and to the user
     * They are not the same when paginating
     */
@@ -259,7 +282,7 @@ function(app, FauxtonAPI, Documents, Databases) {
         view: view,
         params: docParams
       });
-     
+
       this.viewEditor = this.setView("#dashboard-upper-content", new Documents.Views.ViewEditor({
         model: this.data.database,
         ddocs: this.data.designDocs,
@@ -274,7 +297,7 @@ function(app, FauxtonAPI, Documents, Databases) {
 
       this.documentsView = this.createViewDocumentsView({
         designDoc: decodeDdoc,
-        docParams: docParams, 
+        docParams: docParams,
         urlParams: urlParams,
         database: this.data.database,
         indexedDocs: this.data.indexedDocs,
@@ -302,7 +325,7 @@ function(app, FauxtonAPI, Documents, Databases) {
       };
     },
 
-    createViewDocumentsView: function (options) { 
+    createViewDocumentsView: function (options) {
 
       return this.setView("#dashboard-lower-content", new Documents.Views.AllDocsList({
         database: options.database,
@@ -315,13 +338,14 @@ function(app, FauxtonAPI, Documents, Databases) {
       }));
     },
 
-    newViewEditor: function () {
+    newViewEditor: function (database, designDoc) {
       var params = app.getParams();
 
       this.toolsView && this.toolsView.remove();
       this.documentsView && this.documentsView.remove();
 
       this.viewEditor = this.setView("#dashboard-upper-content", new Documents.Views.ViewEditor({
+        currentddoc: "_design/"+designDoc || "",
         ddocs: this.data.designDocs,
         params: params,
         database: this.data.database,
@@ -365,7 +389,7 @@ function(app, FauxtonAPI, Documents, Databases) {
         if (!this.documentsView) {
           this.documentsView = this.createViewDocumentsView({
             designDoc: ddoc,
-            docParams: docParams, 
+            docParams: docParams,
             urlParams: urlParams,
             database: this.data.database,
             indexedDocs: this.indexedDocs,
@@ -427,14 +451,14 @@ function(app, FauxtonAPI, Documents, Databases) {
       urlParams = Documents.QueryParams.parse(urlParams);
 
       if (options.direction === 'next') {
-          params = Documents.paginate.next(collection.toJSON(), 
+          params = Documents.paginate.next(collection.toJSON(),
                                            collection.params,
-                                           options.perPage, 
+                                           options.perPage,
                                            !!collection.isAllDocs);
       } else {
-          params = Documents.paginate.previous(collection.toJSON(), 
-                                               collection.params, 
-                                               options.perPage, 
+          params = Documents.paginate.previous(collection.toJSON(),
+                                               collection.params,
+                                               options.perPage,
                                                !!collection.isAllDocs);
       }
 
@@ -473,7 +497,7 @@ function(app, FauxtonAPI, Documents, Databases) {
         } else {
           storedPerPage = parseInt(storedPerPage, 10);
         }
-      } 
+      }
 
       if (!urlParams.limit || urlParams.limit > storedPerPage) {
         return storedPerPage;

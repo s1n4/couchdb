@@ -35,7 +35,7 @@ button.beautify {
   #select-per-page {
     margin-top: 10px;
   }
-  
+
 }
 
 
@@ -112,4 +112,49 @@ button.beautify {
 }
 
 
+.sidenav{
+  margin-bottom: 40px;
+  li.nav-header {
+    position: relative;
+    .accordion-body{
+      color: #eee;
+      margin-left: 0;
+      li a{
+        padding-left: 55px;
+      }
+    }
+    > span{
+      display: block;
+      padding: 10px 13px 10px 30px;
+      color: #333333;
+      border-bottom: 1px solid #989898;
+      &:before{
+        font-size: 12px;
+        padding-right: 10px;
+      }
+      &.down:before {
+        transform:rotate(90deg);
+        -ms-transform:rotate(90deg); /* IE 9 */
+        -webkit-transform:rotate(90deg); /* Opera, Chrome, and Safari */
+      }
+    }
+    div.new-button {
+      position: absolute;
+      top: 2px;
+      right: 15px;
+      .dropdown-menu{
+        left: -57px;
+        padding-bottom: 0;
+      }
+      .dropdown-toggle{
+        text-decoration: none;
+      }
+      > a {
+        border-bottom: none;
+        text-decoration: none;
+        font-size: 16px;
+      }
+    }
+  }
+}
 
