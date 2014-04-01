@@ -1956,7 +1956,10 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       var ddocName = this.model.id.replace(/^_design\//,"");
       return{
         database: this.collection.database,
-        designDoc: ddocName
+        designDoc: ddocName,
+        ddoc_clean: app.utils.removeSpecialCharacters(ddocName),
+        ddoc_encoded: app.utils.safeURLName(ddocName),
+        database_encoded: app.utils.safeURLName(this.model.collection.database.id),
       };
     },
     beforeRender: function(manage) {

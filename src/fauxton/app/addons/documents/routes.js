@@ -17,10 +17,11 @@ define([
 
        // Modules
        "addons/documents/views",
-       "addons/databases/base"
+       "addons/databases/base",
+       "addons/documents/resources"
 ],
 
-function(app, FauxtonAPI, Documents, Databases) {
+function(app, FauxtonAPI, Documents, Databases, Resources) {
 
   var DocEditorRouteObject = FauxtonAPI.RouteObject.extend({
     layout: "one_pane",
@@ -160,6 +161,10 @@ function(app, FauxtonAPI, Documents, Databases) {
         route: "tempFn",
         roles: ['_admin']
       },
+      "database/:database/_design/:ddoc/metadata": {
+        route: "designDocMetadata",
+        roles: ['_admin']
+      },
       "database/:database/new_view": "newViewEditor",
       "database/:database/new_view/:designDoc": "newViewEditor"
     },
@@ -193,7 +198,12 @@ function(app, FauxtonAPI, Documents, Databases) {
         database: this.data.database
       }));
     },
-
+    designDocMetadata:  function(database, ddoc){
+      var DesignDocInfo = new Resources.DdocInfo({_id: "_design/"+ddoc},{database: this.data.database });
+      this.setView("#dashboard-lower-content", new Documents.Views.DdocInfo({
+        model: DesignDocInfo
+      }));
+    },
     tempFn:  function(databaseName, ddoc, fn){
       this.setView("#dashboard-upper-content", new Documents.Views.temp({}));
       this.crumbs = function () {
