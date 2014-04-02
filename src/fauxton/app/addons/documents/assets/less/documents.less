@@ -35,12 +35,12 @@ button.beautify {
   #select-per-page {
     margin-top: 10px;
   }
-  
+
 }
 
 
 #query div.controls-group.well{
-    height: 150px;
+    height: 180px;
 }
 
 /** used in all_docs_list.html **/
@@ -103,13 +103,30 @@ button.beautify {
 }
 
 #keys-input {
-  display: inline-block;
-  width: 35%;
+  width: 100%;
 }
 
 #keys-error {
   display: inline-block;
 }
 
-
+#dashboard-upper-content{
+  .js-query-keys-wrapper{
+    padding-top: 0;
+  }
+  /** used in advanced-options.html**/
+  .custom-inputs {
+    .row-fluid{
+      padding-top: 20px;
+      .radio, .checkbox{
+        padding-left: 0;
+      }
+      .checkbox.inline,
+      #skipRows {
+        margin-bottom: 0;
+        padding: 6px;
+      }
+    }
+  }
+}
 

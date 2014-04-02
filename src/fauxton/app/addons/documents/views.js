@@ -418,7 +418,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       this.newView = options.newView || false;
       this.pagination = options.pagination;
       _.bindAll(this);
-      
+
       this._perPage = options.perPageDefault || 20;
       this.listenTo(this.collection, 'totalRows:decrement', this.render);
     },
@@ -1088,17 +1088,17 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       "change form.js-view-query-update input": "updateFilters",
       "change form.js-view-query-update select": "updateFilters",
       "submit form.js-view-query-update": "updateView",
-      "click button.preview": "previewView",
       "click .toggle-btns > label":  "toggleQuery"
     },
 
     toggleQuery: function(e){
       e.preventDefault();
+      this.$('.js-query-keys-wrapper').removeClass("hide");
       var showFunctionName =this.$(e.currentTarget).attr("for");
       //highlight current
       this.$(".toggle-btns > label").removeClass('active');
       this.$(e.currentTarget).addClass("active");
-      
+
       this.$("[id^='js-show']").hide();
 
       //show section & disable what needs to be disabled
@@ -1148,7 +1148,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       if (_.isUndefined(parsedValue)) {
         errorMsg = "Keys must be valid json.";
       } else if (!_.isArray(parsedValue)) {
-        errorMsg =  "Keys values must be in an array. E.g [1,2,3]"; 
+        errorMsg =  "Keys values must be in an array. E.g [1,2,3]";
       }
 
       if (errorMsg) {
@@ -1157,12 +1157,30 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
           type: "error",
           msg: errorMsg,
           clear:  false,
-          selector: '.js-keys-error'
+          selector: '.advanced-options .errors-container'
         });
         return false;
       }
 
-      return true; 
+      return true;
+    },
+    validateFields: function(params){
+      var errors = false;
+      //so ghetto. Spaghetti code.
+      for (var i= 0; i <params.length; i++){
+        if (params[i].name === "skip"){
+          if (!(/^\d+$/).test(params[i].value)){
+            var notification = FauxtonAPI.addNotification({
+              msg: "Numbers only for skip",
+              type: "warn",
+              selector: ".advanced-options .errors-container",
+              clear:  true
+            });
+            errors = true
+          }
+        }
+      }
+      return errors;
     },
     queryParams: function () {
       var $form = this.$(".js-view-query-update"),
@@ -1179,6 +1197,8 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
 
       if (keysParam && !this.validateKeys(keysParam)) { return false; }
 
+      if (params && this.validateFields(params)){ return false; }
+
       // Validate *key* params to ensure they're valid JSON
       var keyParams = ["keys","startkey","endkey"];
       var errorParams = _.filter(params, function(param) {
@@ -1191,6 +1211,21 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
 
       return {params: params, errorParams: errorParams};
     },
+
+    //these are the saaaaameeeeeeee
+    updateView: function (event) {
+      event.preventDefault();
+      var params = this.queryParams();
+      if (!params) { return;}
+      this.updateViewFn(event, params);
+    },
+
+    // previewView: function (event) {
+    //   var params = this.queryParams();
+    //   if (!params) { return;}
+    //   this.previewFn(event, params);
+    // },
+
 
     updateFilters: function(event) {
       event.preventDefault();
@@ -1212,16 +1247,26 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
             var notification = FauxtonAPI.addNotification({
               msg: "include_docs has been disabled as you cannot include docs on a reduced view",
               type: "warn",
-              selector: ".view.show .all-docs-list.errors-container",
+              selector: ".advanced-options .errors-container",
               clear:  true
             });
           }
           $form.find("input[name=include_docs]").prop("disabled", true);
           $form.find("select[name=group_level]").prop("disabled", false);
         } else {
-          $form.find("select[name=group_level]").prop("disabled", true);
+          $form.find("select[name=group_level]").val("999").prop("disabled", true);
           $form.find("input[name=include_docs]").prop("disabled", false);
         }
+        break;
+        case "skip":
+          if (!(/^\d+$/).test($ele.val())){
+            var notification = FauxtonAPI.addNotification({
+                msg: "Numbers only for skip",
+                type: "warn",
+                selector: ".advanced-options .errors-container",
+                clear:  true
+              });
+          }
         break;
         case "include_docs":
         break;
@@ -1251,8 +1296,8 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
           }
           this.updateFiltersFor(key, $ele);
           break;
-          case "key": 
-          case "keys": 
+          case "key":
+          case "keys":
             $form.find("textarea[name='"+key+"']").val(val);
           break;
           default:
@@ -1262,18 +1307,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       }, this);
     },
 
-    updateView: function (event) {
-      event.preventDefault();
-      var params = this.queryParams();
-      if (!params) { return;}
-      this.updateViewFn(event, params);
-    },
 
-    previewView: function (event) {
-      var params = this.queryParams();
-      if (!params) { return;}
-      this.previewFn(event, params);
-    },
 
     serialize: function () {
       return {
@@ -1653,7 +1687,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
 
     toggleIndexNav: function (event) {
       $('#dashboard-content').scrollTop(0); //scroll up
-      
+
       var $targetId = this.$(event.target).attr('id'),
           $previousTab = this.$(this.$('li.active a').attr('href')),
           $targetTab = this.$(this.$(event.target).attr('href'));
@@ -1662,7 +1696,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
         $previousTab.removeAttr('style');
       }
       //stop polling
-      this.ddocInfoView.stopRefreshInterval(); 
+      this.ddocInfoView.stopRefreshInterval();
 
       if ($targetId === 'index-nav') {
         if (this.newView) { return; }
@@ -1674,8 +1708,8 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
       } else if ($targetId === "meta-nav"){
         if (!$("#ddoc-info").is(":visible")){
           this.ddocInfoView.startRefreshInterval();
-        } 
-        $targetTab.toggle('slow'); 
+        }
+        $targetTab.toggle('slow');
       } else {
         $targetTab.toggle('slow');
       }
@@ -1722,7 +1756,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
     renderDdocInfo: function(){
       if(this.ddocInfoView){
         this.ddocInfoView.remove();
-      } 
+      }
 
       if (this.newView) { return; }
       this.ddocInfoView = this.setView('#ddoc-info', new Views.DdocInfo({model: this.ddocInfo }));
@@ -1743,7 +1777,7 @@ function(app, FauxtonAPI, Components, Documents, Databases, pouchdb, resizeColum
         var ddocDecode = decodeURIComponent(this.ddocID);
         this.model = this.ddocs.get(ddocDecode).dDocModel();
         this.reduceFunStr = this.model.viewHasReduce(this.viewName);
-        
+
       }
 
       this.designDocSelector = this.setView('.design-doc-group', new Views.DesignDocSelector({
