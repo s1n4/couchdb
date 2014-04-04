@@ -24,7 +24,9 @@ SUBDIRS = \
     mochiweb \
     snappy \
     couchjs-node \
-    protobuffs
+    protobuffs \
+    couch_pb \
+    couch_pb_api
 
 EXTRA_DIST = \
     $(MY_FIRST_COUCHDB_PLUGIN_FILES) \

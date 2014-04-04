@@ -30,6 +30,8 @@ run: ../bin/couchdb.tpl
 			-pa $(abs_top_builddir)\/src\/ibrowse \
 			-pa $(abs_top_builddir)\/src\/mochiweb \
 			-pa $(abs_top_builddir)\/src\/protobuffs\/ebin \
+			-pa $(abs_top_builddir)\/src\/couch_pb\/ebin \
+			-pa $(abs_top_builddir)\/src\/couch_pb_api\/ebin \
 			-pa $(abs_top_builddir)\/src\/snappy|g" \
 	    -e "s|%localconfdir%|$(abs_top_builddir)/etc/couchdb|g" \
 	    -e "s|%localstatelogdir%|$(abs_top_builddir)/tmp/log|g" \
