@@ -15,7 +15,9 @@ start_link() ->
 %% start a socket acceptor
 %% -----------------------------------------------------------------------------
 start_socket() ->
-    supervisor:start_child(?MODULE, []).
+    {ok, Pid} = supervisor:start_child(?MODULE, []),
+    couch_pb_api_server:wait_for_conn(Pid),
+    {ok, Pid}.
 
 %% -----------------------------------------------------------------------------
 %% supervisor callback
@@ -26,6 +28,6 @@ init([]) ->
     {ok, Listen} = gen_tcp:listen(Port, [binary, {active, once}, {ip, IP}]),
 
     {ok, {{simple_one_for_one, 60, 3600},
-          [{couch_pb_api_listener, {couch_pb_api_listener, start_link, [Listen]},
-            temporary, 1000, worker, [couch_pb_api_listener]}
+          [{couch_pb_api_listener, {couch_pb_api_server, start_link, [Listen]},
+            temporary, 1000, worker, [couch_pb_api_server]}
           ]}}.
